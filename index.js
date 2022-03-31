@@ -94,6 +94,14 @@ async function run () {
                 const result = await usersCollection.findOne(filter);
                 res.json(result)
               })
+
+              app.get('/project/:email', async (req, res) => {
+                const email = req.params.email;
+                const filter = {member1: email};
+                const projects = projectCollection.find(filter);
+                const result = await projects.toArray()
+                res.json(result)
+              })
            }
            finally{
             //  await client.close()

@@ -19,13 +19,28 @@ async function run () {
               await client.connect()
               const database = client.db("XTool")
               const usersCollection = database.collection("users")
-
+              const projectCollection = database.collection("projects")
 
               app.get('/users', async(req, res) => {
                 const user =  usersCollection.find({})
                 const result = await user.toArray();
                 res.json(result)
+              }) 
+
+              app.get('/projects', async(req, res)=>{
+                const projects = projectCollection.find({});
+                const result = await projects.toArray();
+                res.json(result)
+              }) 
+
+              
+
+              app.post('/projects', async(req, res) =>{
+                const project = req.body;
+                const result = await projectCollection.insertOne(project);
+                res.json(result)
               })
+
 
               app.post('/users', async(req, res) =>{
                 const user = req.body;

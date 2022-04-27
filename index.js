@@ -5,6 +5,7 @@ app.use(express.json())
 require('dotenv').config()
 const port = process.env.PORT || 7000 ;
 app.use(cors())
+const ObjectId = require('mongodb').ObjectId;
 const fileUpload = require('express-fileupload');
 app.use(fileUpload())
 
@@ -20,7 +21,7 @@ async function run () {
               const database = client.db("XTool")
               const usersCollection = database.collection("users")
               const projectCollection = database.collection("projects")
-
+              const sprintCollection = database.collection("sprints")
               app.get('/users', async(req, res) => {
                 const user =  usersCollection.find({})
                 const result = await user.toArray();
@@ -102,6 +103,66 @@ async function run () {
                 const result = await projects.toArray()
                 res.json(result)
               })
+
+
+              app.get('/projects/:id',  async(req, res)=>{
+                const id = req.params.id;
+                const filter = { _id : ObjectId(id)} 
+                const result = await projectCollection.findOne(filter)
+                res.json(result)
+                
+              })
+
+              app.delete('/projects/:id',  async(req, res)=>{
+                const id = req.params.id;
+
+                console.log(id)
+                const filter = { _id : ObjectId(id)} 
+                const result = await projectCollection.deleteOne(filter)
+                res.json(result)
+                
+              })
+
+              app.get('/sprints/:id', async(req, res)=>{
+                const id = req.params.id;
+                const filter = { unId: id }
+                const sprints = sprintCollection.find(filter)
+                const result = await sprints.toArray();
+                res.json(result)
+              })
+
+              app.get('/sprints', async(req, res)=>{
+              
+                const sprints = sprintCollection.find({});
+                const result = await sprints.toArray();
+                res.json(result)
+              })
+
+
+              app.post('/sprints/:id',  async(req, res)=>{
+              
+                const sprint = req.body;
+                console.log(req.body)
+                
+                const result = await sprintCollection.insertOne(sprint)
+                res.json(result)
+                
+              })
+
+              app.put('/sprint/:id', async(req, res)=>{
+                const id = req.params.id;
+                const filter = { _id : ObjectId(id)} 
+                const options = {upsert: true}
+                const stat = req.body.status;
+                const updateDoc = {$set: {status: stat}}
+
+                const result = await sprintCollection.updateOne(filter, updateDoc, options)
+
+                res.json(result)
+
+              })
+
+
            }
            finally{
             //  await client.close()
